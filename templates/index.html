@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Marketing Agent — META Ads</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0f0f13;
+      color: #e8e8f0;
+      min-height: 100vh;
+    }
+
+    header {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      border-bottom: 1px solid #2a2a4a;
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    header .logo {
+      width: 38px; height: 38px;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+
+    header h1 { font-size: 20px; font-weight: 700; color: #f0f0ff; }
+    header p  { font-size: 13px; color: #8888aa; margin-top: 2px; }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 24px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 768px) { .container { grid-template-columns: 1fr; } }
+
+    .card {
+      background: #16161f;
+      border: 1px solid #2a2a3a;
+      border-radius: 14px;
+      padding: 24px;
+    }
+
+    .card h2 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #a0a0c0;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      color: #8888aa;
+      margin-bottom: 6px;
+      margin-top: 14px;
+    }
+
+    label:first-of-type { margin-top: 0; }
+
+    textarea, input[type="text"] {
+      width: 100%;
+      background: #0f0f18;
+      border: 1px solid #2a2a3a;
+      border-radius: 8px;
+      color: #e8e8f0;
+      font-size: 14px;
+      padding: 10px 12px;
+      resize: vertical;
+      outline: none;
+      transition: border-color .2s;
+    }
+
+    textarea:focus, input[type="text"]:focus {
+      border-color: #4f46e5;
+    }
+
+    .file-drop {
+      border: 2px dashed #2a2a4a;
+      border-radius: 8px;
+      padding: 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+      position: relative;
+    }
+
+    .file-drop:hover, .file-drop.dragover {
+      border-color: #4f46e5;
+      background: #1a1a2e;
+    }
+
+    .file-drop input[type="file"] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+
+    .file-drop .icon { font-size: 28px; margin-bottom: 8px; }
+    .file-drop p { font-size: 13px; color: #6666aa; }
+    .file-drop .filename { font-size: 13px; color: #7c3aed; margin-top: 6px; font-weight: 500; }
+
+    .checkboxes {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #0f0f18;
+      border: 1px solid #2a2a3a;
+      border-radius: 8px;
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+      font-size: 13px;
+    }
+
+    .checkbox-item:has(input:checked) {
+      border-color: #4f46e5;
+      background: #1a1a2e;
+    }
+
+    .checkbox-item input { accent-color: #4f46e5; width: 15px; height: 15px; }
+
+    .submit-btn {
+      grid-column: 1 / -1;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 14px 28px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: opacity .2s, transform .1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .submit-btn:hover { opacity: .92; }
+    .submit-btn:active { transform: scale(.99); }
+    .submit-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+    .output-section {
+      grid-column: 1 / -1;
+      display: none;
+    }
+
+    .output-section.visible { display: block; }
+
+    .output-card {
+      background: #16161f;
+      border: 1px solid #2a2a3a;
+      border-radius: 14px;
+      padding: 24px;
+    }
+
+    .output-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .output-header h2 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #a0a0c0;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    .copy-btn {
+      background: #2a2a3a;
+      border: 1px solid #3a3a5a;
+      color: #8888aa;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background .2s, color .2s;
+    }
+
+    .copy-btn:hover { background: #3a3a5a; color: #e8e8f0; }
+
+    #output-text {
+      white-space: pre-wrap;
+      font-size: 14px;
+      line-height: 1.7;
+      color: #d0d0e8;
+      min-height: 200px;
+    }
+
+    #output-text h1, #output-text h2 {
+      color: #a0a0ff;
+      font-size: 16px;
+      margin: 20px 0 10px;
+    }
+
+    #output-text h3 { color: #c0c0ff; font-size: 14px; margin: 14px 0 6px; }
+    #output-text strong { color: #e8e8ff; }
+
+    .spinner {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .status-bar {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: #8888aa;
+      margin-bottom: 16px;
+      padding: 10px 14px;
+      background: #1a1a2e;
+      border-radius: 8px;
+      border: 1px solid #2a2a4a;
+    }
+
+    .status-bar.visible { display: flex; }
+
+    .api-notice {
+      grid-column: 1 / -1;
+      background: #1a1a0a;
+      border: 1px solid #3a3a1a;
+      border-radius: 10px;
+      padding: 14px 18px;
+      font-size: 13px;
+      color: #aaaa66;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🤖</div>
+  <div>
+    <h1>AI Marketing Agent</h1>
+    <p>Generează concepte, scripturi și copy pentru reclame META cu Claude AI</p>
+  </div>
+</header>
+
+<form id="main-form" action="/analyze" method="POST" enctype="multipart/form-data">
+  <div class="container">
+
+    <div class="api-notice">
+      <span>⚠️</span>
+      <span>
+        Ai nevoie de un <strong>API key Anthropic</strong> pentru a folosi această aplicație.
+        Obține-l de la <a href="https://console.anthropic.com" target="_blank" style="color:#cccc88">console.anthropic.com</a>,
+        apoi adaugă-l în fișierul <code>.env</code> (copiază <code>.env.example</code>).
+      </span>
+    </div>
+
+    <!-- Stânga: input-uri -->
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+
+      <div class="card">
+        <h2>📦 Produs / Serviciu</h2>
+        <label>Descrie produsul sau serviciul tău</label>
+        <textarea name="product_info" rows="6"
+          placeholder="Ex: Supliment pentru slăbit natural, 30 capsule/cutie, preț 149 RON. Beneficii: accelerează metabolismul, reduce pofta de mâncare. Public țintă: femei 25-45 ani care vor să slăbească rapid înainte de vară..."></textarea>
+      </div>
+
+      <div class="card">
+        <h2>🏆 Competiție / Piață</h2>
+        <label>Informații despre competiție și piață</label>
+        <textarea name="competition_info" rows="5"
+          placeholder="Ex: Principalii competitori sunt X și Y. Ei promovează prin influenceri. Prețul mediu în piață este 120-200 RON. Tendința actuală: conținut UGC autentic performează mai bine decât reclamele profesionale..."></textarea>
+      </div>
+
+    </div>
+
+    <!-- Dreapta: fișier + output options -->
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+
+      <div class="card">
+        <h2>📊 Date Reclame META</h2>
+        <label>Încarcă export din Meta Ads Manager (CSV sau Excel)</label>
+        <div class="file-drop" id="file-drop">
+          <input type="file" name="ads_file" id="file-input" accept=".csv,.xlsx,.xls">
+          <div class="icon">📂</div>
+          <p>Trage fișierul aici sau click pentru a selecta</p>
+          <p class="filename" id="filename-display"></p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>🎯 Ce vrei să genereze?</h2>
+        <div class="checkboxes">
+          <label class="checkbox-item">
+            <input type="checkbox" name="output_types" value="concepts" checked>
+            💡 Concepte campanii
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox" name="output_types" value="scripts" checked>
+            🎬 Scripturi video/UGC
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox" name="output_types" value="copy" checked>
+            ✍️ Copy reclame
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox" name="output_types" value="report" checked>
+            📈 Raport + recomandări
+          </label>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Submit -->
+    <button type="submit" class="submit-btn" id="submit-btn">
+      <span id="btn-text">✨ Analizează și Generează</span>
+      <span class="spinner" id="spinner" style="display:none"></span>
+    </button>
+
+    <!-- Status bar -->
+    <div class="status-bar" id="status-bar">
+      <div class="spinner"></div>
+      <span id="status-text">Claude analizează datele tale...</span>
+    </div>
+
+    <!-- Output -->
+    <div class="output-section" id="output-section">
+      <div class="output-card">
+        <div class="output-header">
+          <h2>📋 Rezultate generate de Claude AI</h2>
+          <button type="button" class="copy-btn" id="copy-btn" onclick="copyOutput()">📋 Copiază tot</button>
+        </div>
+        <div id="output-text"></div>
+      </div>
+    </div>
+
+  </div>
+</form>
+
+<script>
+  // File drop UI
+  const fileInput = document.getElementById('file-input');
+  const fileDrop = document.getElementById('file-drop');
+  const filenameDisplay = document.getElementById('filename-display');
+
+  fileInput.addEventListener('change', () => {
+    filenameDisplay.textContent = fileInput.files[0]?.name || '';
+  });
+
+  fileDrop.addEventListener('dragover', e => { e.preventDefault(); fileDrop.classList.add('dragover'); });
+  fileDrop.addEventListener('dragleave', () => fileDrop.classList.remove('dragover'));
+  fileDrop.addEventListener('drop', e => {
+    e.preventDefault();
+    fileDrop.classList.remove('dragover');
+    if (e.dataTransfer.files[0]) {
+      fileInput.files = e.dataTransfer.files;
+      filenameDisplay.textContent = e.dataTransfer.files[0].name;
+    }
+  });
+
+  // Form submit with streaming
+  document.getElementById('main-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const form = e.target;
+    const submitBtn = document.getElementById('submit-btn');
+    const btnText = document.getElementById('btn-text');
+    const spinner = document.getElementById('spinner');
+    const statusBar = document.getElementById('status-bar');
+    const outputSection = document.getElementById('output-section');
+    const outputText = document.getElementById('output-text');
+
+    submitBtn.disabled = true;
+    btnText.textContent = 'Se procesează...';
+    spinner.style.display = 'inline-block';
+    statusBar.classList.add('visible');
+    outputSection.classList.add('visible');
+    outputText.textContent = '';
+
+    const formData = new FormData(form);
+
+    try {
+      const response = await fetch('/analyze', { method: 'POST', body: formData });
+
+      if (!response.ok) {
+        const err = await response.text();
+        outputText.textContent = '❌ Eroare: ' + err;
+        return;
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let fullText = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        fullText += chunk;
+        outputText.textContent = fullText;
+        outputText.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      }
+
+      document.getElementById('status-text').textContent = '✅ Generare completă!';
+
+    } catch (err) {
+      outputText.textContent = '❌ Eroare de conexiune: ' + err.message;
+    } finally {
+      submitBtn.disabled = false;
+      btnText.textContent = '✨ Analizează și Generează';
+      spinner.style.display = 'none';
+    }
+  });
+
+  function copyOutput() {
+    const text = document.getElementById('output-text').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById('copy-btn');
+      btn.textContent = '✅ Copiat!';
+      setTimeout(() => { btn.textContent = '📋 Copiază tot'; }, 2000);
+    });
+  }
+</script>
+
+</body>
+</html>
