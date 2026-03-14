@@ -17,22 +17,35 @@
     header {
       background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
       border-bottom: 1px solid #2a2a4a;
-      padding: 20px 32px;
+      padding: 0 32px;
+      height: 56px;
       display: flex;
       align-items: center;
-      gap: 14px;
+      justify-content: space-between;
     }
 
+    .header-left { display: flex; align-items: center; gap: 14px; }
+
     header .logo {
-      width: 38px; height: 38px;
+      width: 36px; height: 36px;
       background: linear-gradient(135deg, #4f46e5, #7c3aed);
       border-radius: 10px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 18px;
+      font-size: 16px;
     }
 
-    header h1 { font-size: 20px; font-weight: 700; color: #f0f0ff; }
-    header p  { font-size: 13px; color: #8888aa; margin-top: 2px; }
+    header h1 { font-size: 17px; font-weight: 700; color: #f0f0ff; }
+    header p  { font-size: 12px; color: #8888aa; margin-top: 1px; }
+
+    .header-right { display: flex; align-items: center; gap: 6px; }
+    .nav-link {
+      font-size: 13px; color: #8888aa; text-decoration: none;
+      padding: 6px 12px; border-radius: 6px;
+      transition: background .2s, color .2s;
+    }
+    .nav-link:hover { background: rgba(255,255,255,.06); color: #e8e8f0; }
+    .nav-link.active { color: #a0a0ff; }
+    .nav-user { font-size: 13px; color: #6666aa; padding: 0 8px; }
 
     .container {
       max-width: 1100px;
@@ -265,10 +278,18 @@
 <body>
 
 <header>
-  <div class="logo">🤖</div>
-  <div>
-    <h1>AI Marketing Agent</h1>
-    <p>Generează concepte, scripturi și copy pentru reclame META cu Claude AI</p>
+  <div class="header-left">
+    <div class="logo">🤖</div>
+    <div>
+      <h1>AI Marketing Agent</h1>
+      <p>Generează concepte, scripturi și copy pentru reclame META cu Claude AI</p>
+    </div>
+  </div>
+  <div class="header-right">
+    <a href="{{ url_for('index') }}" class="nav-link active">✨ Analiză nouă</a>
+    <a href="{{ url_for('history') }}" class="nav-link">📋 Istoric</a>
+    <span class="nav-user">{{ current_user.username }}</span>
+    <a href="{{ url_for('logout') }}" class="nav-link">Ieși</a>
   </div>
 </header>
 
